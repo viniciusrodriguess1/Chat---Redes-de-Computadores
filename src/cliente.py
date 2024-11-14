@@ -14,11 +14,11 @@ def escutar_servidor(s):
             print("Servidor desconectado.")
             break
 
-# Função para enviar mensagens personalizadas para o servidor
+# Função para enviar mensagens para o servidor
 def enviar_para_servidor(s):
     while True:
         try:
-            mensagem = input("Digite sua mensagem para o servidor: ")
+            mensagem = input("Digite sua mensagem (use @nome_cliente para enviar a um cliente específico): ")
             s.send(mensagem.encode())
         except BrokenPipeError:
             print("Conexão com o servidor foi interrompida.")
