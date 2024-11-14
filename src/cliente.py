@@ -1,10 +1,21 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
-from time import sleep
-from datetime import datetime
 
-# Função para enviar mensagens ao servidor
-def enviar_mensagens(s):
+# Função para escutar mensagens do servidor
+def escutar_servidor(s):
+    while True:
+        try:
+            mensagem = s.recv(1500)
+            if not mensagem:
+                print("Conexão com o servidor encerrada.")
+                break
+            print(f'Mensagem recebida do servidor: {mensagem.decode()}')
+        except ConnectionResetError:
+            print("Servidor desconectado.")
+            break
+
+# Função para enviar mensagens personalizadas para o servidor
+def enviar_para_servidor(s):
     while True:
         try:
             mensagem = input("Digite sua mensagem para o servidor: ")
@@ -17,24 +28,16 @@ def enviar_mensagens(s):
             s.close()
             break
 
-# Função para escutar mensagens do servidor
-def escutar_mensagens(s):
-    while True:
-        try:
-            mensagem = s.recv(1500)
-            if not mensagem:
-                print("Conexão com o servidor encerrada.")
-                break
-            print(f'Mensagem recebida do servidor: {mensagem.decode()}')
-        except ConnectionResetError:
-            print("Servidor desconectado.")
-            break
-
-# Configuração e conexão do socket do cliente
+# Configuração do cliente e conexão ao servidor
 s = socket(AF_INET, SOCK_STREAM)
 s.connect(('127.0.0.1', 8000))
-print('Conectado ao servidor na porta 8000')
 
-# Iniciar threads para enviar e escutar mensagens
-Thread(target=enviar_mensagens, args=(s,)).start()
-Thread(target=escutar_mensagens, args=(s,)).start()
+# Solicita ao usuário um nome
+nome_cliente = input("Digite seu nome: ")
+s.send(nome_cliente.encode())
+
+print(f'Conectado ao servidor na porta 8000 como {nome_cliente}')
+
+# Inicia threads para enviar e escutar mensagens
+Thread(target=escutar_servidor, args=(s,)).start()
+Thread(target=enviar_para_servidor, args=(s,)).start()
